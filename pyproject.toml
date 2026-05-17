@@ -1,0 +1,25 @@
+[project]
+name = "pyagent"
+version = "0.1.0"
+description = "A Python AI coding agent with AST analysis, bug detection, complexity evaluation, and Gemini-assisted fix suggestions."
+readme = "README.md"
+authors = [
+  {name = "AI Agent", email = "ai@agent.local"}
+]
+requires-python = ">=3.11"
+license = {text = "MIT"}
+keywords = ["ai", "python", "analysis", "ast", "pytest", "rich", "langgraph", "gemini"]
+
+dependencies = [
+  "rich>=13.0",
+  "pytest>=8.0",
+  "requests>=2.31",
+]
+
+[project.optional-dependencies]
+langgraph = ["langgraph"]
+flashapi = ["requests"]
+
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
