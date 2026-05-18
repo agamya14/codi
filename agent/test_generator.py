@@ -36,9 +36,19 @@ def generate_edge_tests(tree: ast.Module) -> List[str]:
     return tests
 
 
-def write_test_module(tests: List[str], path: str) -> None:
+def write_test_module(
+    tests: List[str],
+    path: str,
+    module_name: str,
+    function_names: List[str],
+) -> None:
     with open(path, "w", encoding="utf-8") as handle:
-        handle.write("import pytest\n\n")
+        handle.write("import pytest\n")
+
+        if function_names:
+            imports = ", ".join(function_names)
+            handle.write(f"from {module_name} import {imports}\n\n")
+
         for item in tests:
             handle.write(item)
             handle.write("\n\n")

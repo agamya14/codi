@@ -1,3 +1,4 @@
+import ast
 from pathlib import Path
 from typing import Dict, Any
 
@@ -24,11 +25,29 @@ class LangGraphWorkflow:
         tests = generate_edge_tests(tree)
 
         test_module = path.parent / f"test_{path.stem}_generated.py"
+
+        function_names = [
+            node.name
+            for node in tree.body
+            if isinstance(node, ast.FunctionDef)
+        ]
+
+        module_name = path.stem
+
         if tests:
-            write_test_module(tests, str(test_module))
+            write_test_module(
+                tests,
+                str(test_module),
+                module_name,
+                function_names,
+            )
             test_results = execute_tests(str(test_module))
         else:
-            test_results = {"exit_code": 0, "stdout": "No generated tests.", "stderr": ""}
+            test_results = {
+                "exit_code": 0,
+                "stdout": "No generated tests.",
+                "stderr": "",
+                }
 
         fix_suggestions = suggest_fixes(source, bug_reports)
         summary = {
