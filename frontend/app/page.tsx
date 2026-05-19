@@ -1,37 +1,60 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   async function handleAnalyze() {
+
     if (!file) {
       alert("Please select a Python file");
       return;
     }
 
     setLoading(true);
+    setUploadProgress(0);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", file as File);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/analyze", {
-        method: "POST",
-        body: formData,
-      });
 
-      const data = await response.json();
-      setResult(data);
+      const response = await axios.post(
+        "https://ai-python-code-analyzer.onrender.com",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+
+          onUploadProgress: (progressEvent) => {
+
+            const percent = Math.round(
+              (progressEvent.loaded * 100) /
+              (progressEvent.total || 1)
+            );
+
+            setUploadProgress(percent);
+          },
+        }
+      );
+
+      setResult(response.data);
+
     } catch (error) {
+
       console.error(error);
       alert("Failed to connect to backend");
-    }
 
-    setLoading(false);
+    } finally {
+
+      setLoading(false);
+    }
   }
 
   return (
@@ -77,6 +100,28 @@ export default function Home() {
             {loading ? "Analyzing..." : "Analyze"}
           </button>
         </div>
+        
+        {loading && (
+
+          <div className="mt-6">
+
+            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+
+              <div
+                className="bg-black h-4 transition-all duration-300"
+                style={{
+                  width: `${uploadProgress}%`,
+                }}
+              />
+
+            </div>
+
+            <p className="text-sm text-gray-600 mt-2">
+              Uploading... {uploadProgress}%
+            </p>
+
+          </div>
+        )}
 
         {result && (
           <div className="mt-10">
@@ -94,4 +139,4 @@ export default function Home() {
       </div>
     </main>
   );
-}  
+}
